@@ -1,0 +1,121 @@
+---
+title: "FirstRMD"
+author: "Jack Billings"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# The Collatz Conjecture
+
+The Collatz Conjecture is a theory that repeating the two arithmetic equations, {if the number is even, divide by 2} and {if the number is odd, multiply by three and add one}, on any number it will eventually result in One. It remains a theory as we cannot compute this for an infinite amount of numbers but so far it is yet to be disproven.
+
+## Stopping Numbers
+
+The stopping number for a certain integer is the amount of steps it takes for the function to arrive at zero using the Collatz Conjecture.
+
+Create a set of rules that mirrors the Collatz conjecture and a program that returns the amount of steps taken from an input variable to the stop.
+
+The rules for the Collatz Conjecture as stated above are :
+
+-   if the number is even, divide by 2
+
+-   if the number is odd, multiply by three and add one
+
+The Stopping numbers can be calculated by creating a program which runs the Collatz Conjecture and adding in a step variable which increases each time one of the rules is applied. By running the conjecture until the output is 1 we can take the result of the step variable to be the stopping variable.
+
+The code theorized above would look like:
+
+```{r}
+collatz <- function(input,step = 0 , stop = FALSE ){
+#runs the Collatz Conjecture until input equals 1
+while(stop == FALSE )
+  {
+    #stops loop and returns the stopping number
+    if(input == 1 ){
+      stop == TRUE
+      return(step)
+    }
+    else{
+      #even function
+      if(input%%2 == 0 ){
+        place <- input/2
+      }
+      else{
+        #odd function
+        place <- 3 * input + 1
+      }
+      #increments step
+      step <- step + 1
+      #moves result to input to repeat the loop
+      input <- place
+    }
+  }
+}
+collatz(input = 2)
+collatz(input = 3)
+collatz(input = 4)
+collatz(input = 5)
+
+```
+
+# Data Visualization 
+
+## Tables
+
+Much can be learned from a well designed table. The two prominent theorists in this area are Tufte and Kosslyn for creating the six principles of design and the eight principles for effective graphing respectively. The objective of these principles are to be able to take the data from a table or other source and translate it into a easily readable graph for a nontechnical viewer to understand.
+
+The graph below is working from the ggplot table "diamonds" and equates the carat, cut, clarity, and depth to the price as shown by color. The x and y axes are determined by depth(size) and carat respectively, with the color indicating price on a scale from purple (low) to yellow (high). The different facets are determined by the cut of the diamond, as each cut should be valued differently since it determines the overall baseline quality. A simplification of the relationship shown is that the higher carat and depth of a diamond roughly equates higher price. This visualization is intended to show a trend in price as related to the different aspects of a diamond, showing which are more impactful than others.
+
+```{r}
+library(ggplot2)
+ggplot(diamonds) +
+# x = depth
+# y = carat
+# color = price
+# size = clairity
+# grouped by cut
+aes(x = depth, y = carat, fill = color, colour = price, size = clarity, group = table) +
+geom_point(shape = "circle") +
+scale_fill_viridis_d(option = "inferno", direction = 1) +
+scale_color_viridis_c(option = "inferno",
+direction = 1) +
+theme_minimal() +
+facet_wrap(vars(cut))
+```
+
+## Table Visualization
+
+To visualize data as a table it is required to be tidy. Tidy data is defined by R as:
+
+-   Every column is a variable.
+
+-   Every row is an observation.
+
+-   Every cell is a single value.
+
+This results in the most readable set of standardized data and also prepares it well for other types of visualization which could be performed. The next step for keeping it as a table is to create a summary table which effectively describes the data to the degree specified, usually including a count, min, median, max, mean, and standard deviation.
+
+The table below also visualizes diamonds, but describes differences in width rather than price. In a brief overview, fair cut has the greatest average size but least number of cases, showing that quality and size serve similar purposes in relation to price. Aside from premium, the higher the cut the lower the average size. This can be extrapolated by only viewing count and mean, so the quintiles included allow the viewer to see the trends in the data set over smaller sections as well.
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+
+diamondsY <- diamonds %>%
+as.data.frame() %>%
+subset(select = c(cut,y)) %>%
+group_by(cut) %>%
+#grouped by cut and describes width
+#includes count, quintiles, mean and standard deviation
+summarize(count = n(), minimum = min(y), firstQuintile = quantile(y, .2), secondQuintile = quantile(y, .4),, median = median(y), thirdQuintile = quantile(y, .6), fourthQuintile = quantile(y, .8), maximum = max(y), "arithmetic mean" = mean(y), "arithmetic standard deviation" = sd(y))
+diamondsY
+```
+
+# Course Takeaways
+
+Coming into this class I was already fairly confident in my coding skills, and R is just a derivative of python so I was expecting to mostly relearn. Instead we focused much more on the theory behind data wrangling and visualization, which I am much less comfortable with than my technical skills. Overall this class taught me how to take the data I gather and create something presentable for consumers and supervisors both. Before this course I was perfectly fine with taking a screenshot of a raw table output and sticking it on a slide, which would require me to describe it from scratch on the spot while presenting, but using what I learned in this class I now know how to go about creating a translation between data and viewer to benefit both.
